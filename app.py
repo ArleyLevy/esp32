@@ -15,7 +15,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 
-<<<<<<< HEAD
 # Enhanced Configuration
 class Config:
     MYSQL_HOST = 'sql10.freemysqlhosting.net'
@@ -25,13 +24,12 @@ class Config:
     SECRET_KEY = os.urandom(24)
     SESSION_PERMANENT = True
     EMAIL_VALIDATION_API_KEY = '9e22da46e85c4bab9684168eb8acd81e'
-=======
+
 # Configurações do banco de dados MySQL
 app.config['MYSQL_HOST'] = 'sql10.freemysqlhosting.net'
 app.config['MYSQL_USER'] = 'sql10746168'
 app.config['MYSQL_PASSWORD'] = 'Py2RUvw6my'
 app.config['MYSQL_DB'] = 'sql10746168'
->>>>>>> 005602663185978ba42d74fd60147a062a30b888
 
 app.config.from_object(Config)
 
