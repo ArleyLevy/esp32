@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle de LEDs</title>
+    <link rel="icon" type="image/png" href="https://i.imgur.com/sJDXl0o.png">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #4e54c8, #8f94fb);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 100vh;
+        }
+
+
+        #mqtt-info {
+            word-break: break-word; /* Permite quebrar palavras longas */
+            overflow-wrap: break-word; /* Permite quebra de palavras para ajustar ao container */
+            white-space: normal; /* Força o texto a quebrar linhas */
+        }
+
+        /* Botão do menu */
+        .menu-button {
+            position: fixed;
+            top: 10px;
+            left: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: #fff;
+            z-index: 1100;
+            transition: transform 0.3s, color 0.3s;
+        }
+
+        .menu-button:hover {
+            color: #ffd700;
+            transform: scale(1.2);
+        }
+
+        /* Cabeçalho */
+        .site-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 54px; /* Altura fixa */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 10px; /* Ajuste de padding */
+            background: #333;
+            color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+        }
+
+        .botao{
+            margin-top: 50px;
+        }
+        .site-header .logo {
+            margin-left: 170px;
+        }
+
+        .site-header .logo1 {
+            flex: 3; /* Faz com que ocupe o espaço central */
+            text-align: center; /* Alinha o texto ao centro */
+        }
+        .site-header .logo a img {
+            height: 40px;
+            margin-left: -120px;
+        }
+
+        .site-header .logo1 a {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-right: -100px;
+            color: white;
+        }
+
+        /* Navegação */
+        .navigation ul {
+            display: flex;
+            gap: 10px;
+            margin-right: 20px;
+            z-index: 1000;
+        }
+
+        .navigation h4 {
+            color: white;
+            padding: 5px 0px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+            font-weight: bold;
+            z-index: 1000;
+        }
+
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .navigation ul {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+                padding: 10px 20px;
+            }
+        }
+
+        @media (max-width : 403px){
+            .site-header .logo1 a {
+                display:none;
+            }
+        }
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -400px;
+            width: 300px;
+            height: 100%;
+            background: #333;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
+            padding: 70px 20px;
+            transition: left 0.3s ease-in-out;
+            z-index: 800;
+            overflow-y: auto;
+        }
+
+        .sidebar.active {
+            left: 0;
+        }
+
+        .sidebar button {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            background: #555;
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        .sidebar button:hover {
+            background: #ffd700;
+            color: #4e54c8;
+            transform: translateX(5px);
+        }
+
+        .content {
+            margin-top: 115px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .led-container {
+            text-align: center;
+            padding: 50px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+
+        .circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: gray;
+            display: inline-block;
+            margin: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3), inset 0 0 20px rgba(255, 255, 255, 0.1);
+            border: 4px solid #fff;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .circle[data-led-on="true"] {
+            background-color: #ff4b5c;
+            box-shadow: 0 0 25px #ff4b5c, inset 0 0 25px #ff4b5c;
+        }
+
+        .led-button {
+            padding: 12px 25px;
+            margin: 10px;
+            font-size: 16px;
+            color: #fff;
+            background: #4CAF50;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .led-button:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+        }
+
+        footer {
+            text-align: center;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        footer span {
+            font-weight: bold;
+            color: #ffd700;
+        }
+
+        .flash-container {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 1100;
+        }
+
+        .flash-message {
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            color: #fff;
+            font-weight: bold;
+            background: #4CAF50;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            transition: opacity 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <div class="logo">
+            <a href="/"><img src="https://i.imgur.com/c882vId.png" alt="Logo"></a>
+        </div>
+        <div class="logo1">
+            <a>Dashboard das LEDs</a>
+        </div>
+        <div class="navigation">
+            <ul>
+                <h4>Bem-vindo, {{ current_user.email }}</h4>
+            </ul>
+        </div>
+    </header>
+    <button class="menu-button" onclick="toggleMenu()">☰</button>
+    <div class="flash-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="flash-message flash-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
+    </div>
+
+    <div class="sidebar" id="sidebar">
+        <button onclick="window.location.href='/logout'">Logout</button>
+        Broker MQTT:
+        <p id="mqtt-info">{{ broker1 }}</p>
+        <p><strong>Seu ID de usuário:</strong> <span id="user-id">{{ user_id }}</span></p>
+    </div>
+
+    <div class="content">
+        <div class="led-container">
+            <h2>Controle de LEDs</h2>
+            <div id="led1" class="circle" data-led-on="false"></div>
+            <div id="led2" class="circle" data-led-on="false"></div>
+            <div id="led3" class="circle" data-led-on="false"></div>
+            <div id="led4" class="circle" data-led-on="false"></div>
+            <div>
+                <button class ='led-button' onclick="toggleLED(1)">LED 1</button>
+                <button class ='led-button' onclick="toggleLED(2)">LED 2</button>
+                <button class ='led-button' onclick="toggleLED(3)">LED 3</button>
+                <button class ='led-button' onclick="toggleLED(4)">LED 4</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        Powered by <span>Arley™</span>
+    </footer>
+    <script>
+        // Oculta mensagens de flash automaticamente
+        setTimeout(() => {
+            const flashMessages = document.querySelectorAll('.flash-message');
+            flashMessages.forEach(message => {
+                message.style.opacity = '0';
+                setTimeout(() => message.remove(), 500);
+            });
+        }, 5000);
+    
+        function toggleMenu() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+        }
+    
+        // Variável para armazenar o estado atual dos LEDs
+        const ledStatus = [false, false, false, false]; // false = Off, true = On
+    
+        // Alterna o estado de um LED
+        function toggleLED(led) {
+            const ledIndex = led - 1;
+    
+            // Alterna o estado local
+            ledStatus[ledIndex] = !ledStatus[ledIndex];
+            const status = ledStatus[ledIndex];
+    
+            // Atualiza o círculo visual no HTML
+            const ledCircle = document.getElementById(`led${led}`);
+            ledCircle.dataset.ledOn = status;
+    
+            // Obtém o user_id do elemento HTML
+            const userId = document.getElementById("user-id").textContent;
+    
+            // Envia o comando ao servidor
+            fetch('/update_led', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ user_id: userId, led: `led${led}`, status: status ? 1 : 0 })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erro ao enviar comando');
+                }
+            })
+            .catch(err => {
+                console.error('Erro ao enviar comando:', err);
+    
+                // Reverte o estado local em caso de falha
+                ledStatus[ledIndex] = !status;
+                ledCircle.dataset.ledOn = ledStatus[ledIndex];
+            });
+        }
+    
+        // Função para ouvir atualizações do servidor
+        function listenToUpdates() {
+            const userId = document.getElementById("user-id").textContent;
+    
+            // Conexão ao servidor de eventos
+            const eventSource = new EventSource('/led_updates');
+    
+            // Manipula mensagens recebidas do servidor
+            eventSource.onmessage = function(event) {
+                try {
+                    const data = JSON.parse(event.data);
+    
+                    // Verifica se o dado é para o usuário atual
+                    if (data.user_id !== parseInt(userId)) return;
+    
+                    // Atualiza o estado local e a interface
+                    const ledIndex = parseInt(data.led.replace('led', '')) - 1;
+                    const status = data.status === 1;
+    
+                    if (ledIndex >= 0 && ledIndex < ledStatus.length) {
+                        ledStatus[ledIndex] = status;
+    
+                        // Atualiza a interface
+                        const ledCircle = document.getElementById(`led${ledIndex + 1}`);
+                        if (ledCircle) {
+                            ledCircle.dataset.ledOn = status;
+                        }
+                    }
+                } catch (err) {
+                    console.error("Erro ao processar atualização do servidor:", err);
+                }
+            };
+    
+            // Reconecta em caso de falha
+            eventSource.onerror = function() {
+                console.error("Conexão encerrada. Tentando reconectar...");
+                eventSource.close();
+                setTimeout(listenToUpdates, 5000);
+            };
+        }
+    
+        // Inicia o listener para atualizações assim que a página for carregada
+        listenToUpdates();
+    </script>
+    
+</body>
+</html>
