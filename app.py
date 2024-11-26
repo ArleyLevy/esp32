@@ -191,7 +191,7 @@ def validar_codigo():
             """, (seq48, email))
             mysql.connection.commit()
 
-            mensagem = f"Para redefinir sua senha, acesse o link: https://esp-wtqq.onrender.com/alterar_senha/{seq48}"
+            mensagem = f"Para redefinir sua senha, acesse o link: https://esp32-p677.onrender.com/alterar_senha/{seq48}"
             enviar_cod(email, mensagem)
 
             cursor.close()
