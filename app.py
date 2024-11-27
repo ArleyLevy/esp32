@@ -10,31 +10,26 @@ import logging
 from typing import Optional
 import re
 from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
 from werkzeug.security import generate_password_hash, check_password_hash
+from config import config_dashboard
+from mysql import mysql
 
 app = Flask(__name__)
 
 # Enhanced Configuration
 class Config:
-    MYSQL_HOST = 'sql10.freemysqlhosting.net'
-    MYSQL_USER = 'sql10746168'
-    MYSQL_PASSWORD = 'Py2RUvw6my'
-    MYSQL_DB = 'sql10746168'
+    MYSQL_HOST = 'sql10.freesqldatabase.com'
+    MYSQL_USER = 'sql10748019'
+    MYSQL_PASSWORD = 'BRv8fEBAxy'
+    MYSQL_DB = 'sql10748019'
     SECRET_KEY = os.urandom(24)
     SESSION_PERMANENT = True
     EMAIL_VALIDATION_API_KEY = '9e22da46e85c4bab9684168eb8acd81e'
-
-# Configurações do banco de dados MySQL
-app.config['MYSQL_HOST'] = 'sql10.freemysqlhosting.net'
-app.config['MYSQL_USER'] = 'sql10746168'
-app.config['MYSQL_PASSWORD'] = 'Py2RUvw6my'
-app.config['MYSQL_DB'] = 'sql10746168'
-
+    
 app.config.from_object(Config)
 
 # Inicialização de módulos
-mysql = MySQL(app)
+mysql.init_app(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
@@ -99,7 +94,9 @@ limiter = Limiter(
     app,
     default_limits=["100 per day", "30 per hour"]
 )
-    
+
+app.register_blueprint(config_dashboard)
+
 @app.route('/tutorial')
 def tutorial():
     return render_template('tutorial.html')
@@ -267,6 +264,7 @@ def login():
 
         cur = mysql.connection.cursor()
         cur.execute("SELECT id, email, password_hash, mqtt_broker, mqtt_username, mqtt_password, mqtt_port FROM users WHERE email = %s", (email,))
+       
         user_data = cur.fetchone()
 
         if user_data and check_password_hash(user_data[2], password):  # Usando check_password_hash para verificar
@@ -396,10 +394,17 @@ def register():
 @login_required
 def dashboard():
     print(f"Broker: {current_user.broker}, ID: {current_user.id}")  # Aqui o current_user já está configurado
+    app.config['BROKER'] = current_user.broker
+    app.config['USER_ID'] = current_user.id
+    app.config['EMAIL'] = current_user.email
+    app.config['PORT'] = current_user.mqtt_port
+    app.config['USER'] = current_user.mqtt_user
+    app.config['PASSWORD'] = current_user.mqtt_password
+    
     return render_template(
         'dashboard.html',
         broker1=current_user.broker,
-        user_id=current_user.id
+        user_id=current_user.id,
     )
 
 @app.route('/update_led', methods=['POST'])

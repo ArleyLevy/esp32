@@ -239,6 +239,20 @@
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
             transition: opacity 0.5s ease-in-out;
         }
+        body.dark-mode {
+            background: linear-gradient(135deg, #333, #555);
+            color: #f0f0f0;
+        }
+
+        body.dark-mode input {
+            background: #444;
+            color: #fff;
+        }
+
+        body.dark-mode .config-section {
+            background: rgba(50, 50, 50, 0.8);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.5);
+        }
     </style>
 </head>
 <body>
@@ -267,6 +281,7 @@
     </div>
 
     <div class="sidebar" id="sidebar">
+        <button onclick="window.location.href='/config'">Configurações</button>
         <button onclick="window.location.href='/logout'">Logout</button>
         Broker MQTT:
         <p id="mqtt-info">{{ broker1 }}</p>
@@ -293,6 +308,23 @@
         Powered by <span>Arley™</span>
     </footer>
     <script>
+        // Carregar o estado do modo escuro ao iniciar a página
+        document.addEventListener('DOMContentLoaded', () => {
+            const isDarkMode = localStorage.getItem('darkMode') === 'true';
+            document.body.classList.toggle('dark-mode', isDarkMode);
+            const themeSwitch = document.getElementById('theme-switch');
+            if (themeSwitch) {
+                themeSwitch.checked = isDarkMode; // Atualizar o toggle com o estado atual
+            }
+        });
+        // Oculta mensagens de flash automaticamente
+        setTimeout(() => {
+            const flashMessages = document.querySelectorAll('.flash-message');
+            flashMessages.forEach(message => {
+                message.style.opacity = '0';
+                setTimeout(() => message.remove(), 500);
+            });
+        }, 5000);
         // Oculta mensagens de flash automaticamente
         setTimeout(() => {
             const flashMessages = document.querySelectorAll('.flash-message');

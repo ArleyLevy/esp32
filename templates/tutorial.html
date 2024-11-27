@@ -268,6 +268,27 @@
                 display:none;
             }
         }
+        body.dark-mode {
+            background: linear-gradient(135deg, #333, #555);
+            color: #f0f0f0;
+        }
+
+        body.dark-mode input {
+            background: #444;
+            color: #fff;
+        }
+
+        body.dark-mode .config-section {
+            background: rgba(50, 50, 50, 0.8);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.5);
+        }
+        body.dark-mode p {
+            color:  black; /* Cor clara para contraste no fundo escuro */
+        }
+        body.dark-mode pre {
+            color:  black; /* Cor clara para contraste no fundo escuro */
+        }
+    
     </style>
 </head>
 <body>
@@ -386,20 +407,33 @@
     Powered by <span>Arley™</span>
 </footer>
 
-<script>
-    function toggleSidebar() {
-        document.getElementById('sidebar').classList.toggle('active');
-    }
+    <script>
+        // Carregar o estado do modo escuro ao iniciar a página
+        document.addEventListener('DOMContentLoaded', () => {
+            const isDarkMode = localStorage.getItem('darkMode') === 'true';
+            document.body.classList.toggle('dark-mode', isDarkMode);
+            const themeSwitch = document.getElementById('theme-switch');
+            if (themeSwitch) {
+                themeSwitch.checked = isDarkMode; // Atualizar o toggle com o estado atual
+            }
+        });
+        function toggleMenu() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+        }
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+        }
 
-    function downloadFile(url) {
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = 'led_online_pronto.ino';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    }
-</script>
+        function downloadFile(url) {
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'led_online_pronto.ino';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
 
 </body>
 </html>
