@@ -259,6 +259,14 @@
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
             transition: opacity 0.5s ease-in-out;
         }
+        .flash-success {
+            background: #4CAF50 !important;
+        }
+
+        .flash-error {
+            background: #F44336 !important;
+        }
+
     </style>
 </head>
 <body>
@@ -281,16 +289,16 @@
         <button onclick="window.location.href='/dashboard'">Dashboard</button>
         <button onclick="window.location.href='/logout'">Logout</button>
     </div>
-    <div class="content">
-        <div class="flash-container">
-            {% with messages = get_flashed_messages(with_categories=true) %}
+    <div class="flash-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
                     <div class="flash-message flash-{{ category }}">{{ message }}</div>
                 {% endfor %}
             {% endif %}
-            {% endwith %}
-        </div>
+        {% endwith %}
+    </div>
+    <div class="content">
         <div class="config-section">
             <h2>Troca de Senha</h2>
             <form action="/config_senha" method="POST">

@@ -101,7 +101,7 @@ def config_broker():
                 return False
 
         if not verify_broker():
-            flash("Verifique as credenciais do broker. Não foi possível se conectar!", "danger")
+            flash("Verifique as credenciais do broker. Não foi possível se conectar!", "error")
             return redirect(url_for('config.config_dash'))
         
         cur = mysql.connection.cursor()
@@ -112,14 +112,14 @@ def config_broker():
                     UPDATE users 
                     SET mqtt_broker = %s, mqtt_username = %s, mqtt_password = %s, mqtt_port = %s, reset_code = NULL
                     WHERE LOWER(email) = LOWER(%s)
-                """, (broker_, user_, password_, port_, email))
+                """, (broker_, user_, password_, int(port_), email))
                 mysql.connection.commit()
                 flash("Broker MQTT atualizado com sucesso.", "success")
             else:
-                flash("Usuário não encontrado.", "danger")
+                flash("Usuário não encontrado.", "error")
         except Exception as e:
             logging.error(f"Erro ao atualizar o banco de dados: {e}")
-            flash("Erro ao atualizar o broker no banco de dados.", "danger")
+            flash("Erro ao atualizar o broker no banco de dados.", "error")
         finally:
             cur.close()
 
@@ -132,12 +132,32 @@ def config_email():
     email_ =  request.form.get('name_')
     email__ =  request.form.get('name__')
     
-    if email_ == email__:
-        flash("O e-mail novo não pode ser o mesmo que o antigo.")
+    if email == email__:
+        flash("O e-mail novo não pode ser o mesmo que o antigo.", "error")
+        return redirect(url_for('config.config_dash'))
+    elif email_ != email__:
+        flash("A confirmação do e-mail é diferente!.", "error")
+        return redirect(url_for('config.config_dash'))  
+    elif not validate_email(email):
+        flash('E-mail inválido. Por favor, insira um e-mail válido.', 'error')
         return redirect(url_for('config.config_dash'))
     else:
-        flash("Estamos implementando ainda essa função!")
-        return redirect(url_for('config.config_dash'))
+        try:
+            cur = mysql.connection.cursor()
+            cur.execute("SELECT id FROM users WHERE email = %s", (email,))
+            if cur.fetchone():
+                cur.execute("""
+                    UPDATE users 
+                    SET email = %s, reset_code = NULL
+                    WHERE LOWER(email) = LOWER(%s)
+                """, (email_, email))
+                mysql.connection.commit()
+                flash("E-mail atualizado com sucesso!", "success")
+        except Exception as e:
+            logging.error(f"Erro ao atualizar o banco de dados: {e}")
+            flash("Erro ao atualizar o e-mail no banco de dados.", "error")
+        finally:
+            cur.close()
 
-        
-        
+        return redirect(url_for('config.config_dash'))
+            

@@ -250,21 +250,21 @@ def alterar_senha(seq48):
         
 @app.route('/login')
 def loginrender():
-    return render_template('login.html')
+    if current_user.is_authenticated:
+        return redirect(url_for('dashboard'))
+    else:
+        return render_template('login.html')
 
 # Página de login
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if current_user.is_authenticated:
-        return render_template('dashboard.html')
-
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']  # Mudei de password_hash para password
 
         cur = mysql.connection.cursor()
         cur.execute("SELECT id, email, password_hash, mqtt_broker, mqtt_username, mqtt_password, mqtt_port FROM users WHERE email = %s", (email,))
-       
+    
         user_data = cur.fetchone()
 
         if user_data and check_password_hash(user_data[2], password):  # Usando check_password_hash para verificar
@@ -283,12 +283,13 @@ def login():
             user_client = create_new_client(user.id, user.broker, user.mqtt_port, user.mqtt_user, user.mqtt_password)
             if user_client is None:
                 logout_user()  # Desloga o usuário caso o cliente MQTT falhe
-                flash("Falha ao conectar ao broker MQTT.", "danger")
+                flash("Falha ao conectar ao broker MQTT.", "error")
                 return render_template('login.html')
 
+            flash('Login efetuado com sucesso!', 'sucess')
             return redirect(url_for('dashboard'))
         else:
-            flash("Credenciais inválidas.", "danger")  # Adicionei uma mensagem flash para melhor UX
+            flash("Credenciais inválidas.", "error")  # Adicionei uma mensagem flash para melhor UX
             return render_template('login.html'), 401
 
     return render_template('login.html')
@@ -353,7 +354,7 @@ def register():
                     return False
 
         if not verify_broker():
-            flash("Verfique as credenciais do broker, não foi possível se conectar!.", "danger")
+            flash("Verfique as credenciais do broker, não foi possível se conectar!.", "error")
             return redirect(url_for('register'))
 
         # Inserção no banco de dados com tratamento de duplicatas

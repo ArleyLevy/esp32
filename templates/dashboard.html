@@ -239,6 +239,14 @@
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
             transition: opacity 0.5s ease-in-out;
         }
+        .flash-success {
+            background: #4CAF50 !important;
+        }
+
+        .flash-error {
+            background: #F44336 !important;
+        }
+
         body.dark-mode {
             background: linear-gradient(135deg, #333, #555);
             color: #f0f0f0;
@@ -270,16 +278,6 @@
         </div>
     </header>
     <button class="menu-button" onclick="toggleMenu()">☰</button>
-    <div class="flash-container">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                <div class="flash-message flash-{{ category }}">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
-        {% endwith %}
-    </div>
-
     <div class="sidebar" id="sidebar">
         <button onclick="window.location.href='/config'">Configurações</button>
         <button onclick="window.location.href='/logout'">Logout</button>
@@ -287,7 +285,15 @@
         <p id="mqtt-info">{{ broker1 }}</p>
         <p><strong>Seu ID de usuário:</strong> <span id="user-id">{{ user_id }}</span></p>
     </div>
-
+    <div class="flash-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
     <div class="content">
         <div class="led-container">
             <h2>Controle de LEDs</h2>

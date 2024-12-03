@@ -136,14 +136,14 @@
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
             transition: opacity 0.5s ease-in-out;
         }
-
         .flash-success {
-            background: #4CAF50;
+            background: #4CAF50 !important;
         }
 
         .flash-error {
-            background: #F44336;
+            background: #F44336 !important;
         }
+
         .eye-icon {
             position: absolute;
             top: 67%;
@@ -192,11 +192,11 @@
         <h1>Login</h1>
         <div class="flash-container">
             {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="flash-message flash-{{ category }}">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
             {% endwith %}
         </div>
         <form action="/login" method="POST">
@@ -241,7 +241,7 @@
             sidebar.classList.toggle('active');
         }
         const togglePassword = document.querySelector("#togglePassword");
-        const password = document.querySelector("#password");
+        const password = document.querySelector("#password_hash");
 
         togglePassword.addEventListener("click", function () {
         const type = password.type === "password" ? "text" : "password";
