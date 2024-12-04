@@ -19,9 +19,9 @@ app = Flask(__name__)
 # Enhanced Configuration
 class Config:
     MYSQL_HOST = 'sql10.freesqldatabase.com'
-    MYSQL_USER = 'sql10748019'
-    MYSQL_PASSWORD = 'BRv8fEBAxy'
-    MYSQL_DB = 'sql10748019'
+    MYSQL_USER = 'sql10749793'
+    MYSQL_PASSWORD = 'TnJvUMg8Uj'
+    MYSQL_DB = 'sql10749793'
     SECRET_KEY = os.urandom(24)
     SESSION_PERMANENT = True
     EMAIL_VALIDATION_API_KEY = '9e22da46e85c4bab9684168eb8acd81e'
