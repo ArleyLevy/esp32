@@ -5,6 +5,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import re
 import paho.mqtt.client as mqtt
 import logging
+import requests
 
 def validate_email(email: str) -> bool:
     """Valida o formato do e-mail."""
@@ -61,11 +62,11 @@ def config_senha():
             flash("Senha redefinida com sucesso!")
             return redirect(url_for('config.config_dash'))
         else:
-            flash("Confirmação de nova senha errada!")
+            flash("Confirmação de nova senha errada!", 'warning')
             return redirect(url_for('config.config_dash'))
             
     else:
-        flash("Incorreto!")
+        flash("Senha antiga incorreta!", 'error')
         return redirect(url_for('config.config_dash'))
     
 @config_dashboard.route('/config_broker', methods=['POST'])
@@ -83,7 +84,7 @@ def config_broker():
     port_ = int(request.form.get('port'))
 
     if broker_ == broker and password_ == password and port_ == port and user_ == user:
-        flash("Não pode alterar um broker MQTT já existente")
+        flash("Não pode alterar um broker MQTT já existente", 'warning')
         return redirect(url_for('config.config_dash'))
     else:   
         def verify_broker():
@@ -128,8 +129,9 @@ def config_broker():
 @config_dashboard.route('/config_email', methods=['POST'])
 @login_required
 def config_email(): 
+    apiemail = current_app.config['EMAIL_API']
     email = current_app.config['EMAIL']
-    email_ =  request.form.get('name_')
+    email_ =  request.form.get('email')
     email__ =  request.form.get('name__')
     
     if email == email__:
@@ -141,7 +143,22 @@ def config_email():
     elif not validate_email(email):
         flash('E-mail inválido. Por favor, insira um e-mail válido.', 'error')
         return redirect(url_for('config.config_dash'))
-    else:
+    else:  
+        #Verificar se o e-mail existe
+        API_URL = f"https://emailvalidation.abstractapi.com/v1/?api_key={apiemail}&email={email_}"
+        try:
+            response = requests.get(API_URL, timeout=5)
+            if response.status_code == 200:
+                data = response.json()
+                if data.get('deliverability') != "DELIVERABLE":
+                    flash('O e-mail fornecido não pode ser entregue.', 'error')
+                    return redirect(url_for('config.config_dash'))
+            else:
+                flash('Serviço de validação de e-mail indisponível.', 'warning')
+        except requests.RequestException:
+            flash('Erro ao validar e-mail. Tente novamente mais tarde.', 'error')
+            return redirect(url_for('config.config_dash'))
+        
         try:
             cur = mysql.connection.cursor()
             cur.execute("SELECT id FROM users WHERE email = %s", (email,))
@@ -160,4 +177,4 @@ def config_email():
             cur.close()
 
         return redirect(url_for('config.config_dash'))
-            
+                

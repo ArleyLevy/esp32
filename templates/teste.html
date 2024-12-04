@@ -266,6 +266,9 @@
         .flash-error {
             background: #F44336 !important;
         }
+        .flash-warning {
+            background: rgb(216, 216, 5) !important;
+        }
 
     </style>
 </head>
@@ -304,15 +307,15 @@
             <form action="/config_senha" method="POST">
                 <div class="input-group">
                     <label>Senha Atual</label>
-                    <input type="password" name= "nome" placeholder="Digite sua senha atual">
+                    <input type="password" name= "nome" placeholder="Digite sua senha atual" required>
                 </div>
                 <div class="input-group">
                     <label>Nova Senha</label>
-                    <input type="password" name= "nome1" placeholder="Digite a nova senha">
+                    <input type="password" name= "nome1" placeholder="Digite a nova senha" required>
                 </div>
                 <div class="input-group">
                     <label>Confirmar Nova Senha</label>
-                    <input type="password" name= "nome2" placeholder="Confirme a nova senha">
+                    <input type="password" name= "nome2" placeholder="Confirme a nova senha" required>
                 </div>
                 <button type="submit" class="content-button">Enviar</button>
             </form>
@@ -322,19 +325,19 @@
             <form action="/config_broker" method="POST">
                 <div class="input-group">
                     <label>Host</label>
-                    <input type="text" name= "broker" placeholder="Digite o url do broker">
+                    <input type="text" name= "broker" placeholder="Digite o url do broker" required>
                 </div>
                 <div class="input-group">
                     <label>Porta</label>
-                    <input type="text" name= "port" placeholder="Digite a porta">
+                    <input type="text" name= "port" placeholder="Digite a porta" required>
                 </div>
                 <div class="input-group">
                     <label>Usuário</label>
-                    <input type= "text" name= "user" placeholder="Digite o usuário">
+                    <input type= "text" name= "user" placeholder="Digite o usuário" required>
                 </div>
                 <div class="input-group">
                     <label>Senha</label>
-                    <input type="password" name= "password" placeholder="Digite a senha">
+                    <input type="password" name= "password" placeholder="Digite a senha" required>
                 </div>
                 <button type="submit" class="content-button">Enviar</button>
             </form>
@@ -344,11 +347,11 @@
             <form action="/config_email" method="POST">
                 <div class="input-group">
                     <label>Novo E-mail</label>
-                    <input type="email" name="name_"placeholder="Digite o novo e-mail">
+                    <input type="email" name="email"placeholder="Digite o novo e-mail" required>
                 </div>
                 <div class="input-group">
                     <label>Confirmar E-mail</label>
-                    <input type="email" name="name__"placeholder="Confirme o novo e-mail">
+                    <input type="email" name="name__"placeholder="Confirme o novo e-mail" required>
                 </div>
                 <button type="submit" class="content-button">Enviar</button>
             </form>

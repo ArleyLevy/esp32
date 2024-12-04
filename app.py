@@ -28,6 +28,9 @@ class Config:
     
 app.config.from_object(Config)
 
+#repassar valores globais para o config.py
+app.config['EMAIL_API'] = Config.EMAIL_VALIDATION_API_KEY
+
 # Inicialização de módulos
 mysql.init_app(app)
 login_manager = LoginManager(app)
