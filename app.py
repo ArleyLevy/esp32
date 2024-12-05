@@ -13,6 +13,7 @@ from flask_limiter import Limiter
 from werkzeug.security import generate_password_hash, check_password_hash
 from config import config_dashboard
 from mysql import mysql
+from datetime import timedelta
 
 app = Flask(__name__)
 
@@ -22,7 +23,7 @@ class Config:
     MYSQL_USER = 'sql10749793'
     MYSQL_PASSWORD = 'TnJvUMg8Uj'
     MYSQL_DB = 'sql10749793'
-    SECRET_KEY = os.urandom(24)
+    SECRET_KEY = 'a8Oi1923jaha1o1iJASJSAJ'
     SESSION_PERMANENT = True
     EMAIL_VALIDATION_API_KEY = '9e22da46e85c4bab9684168eb8acd81e'
     
@@ -30,6 +31,10 @@ app.config.from_object(Config)
 
 #repassar valores globais para o config.py
 app.config['EMAIL_API'] = Config.EMAIL_VALIDATION_API_KEY
+app.config['REMEMBER_COOKIE_DURATION'] = timedelta(days=30)
+app.config['SESSION_COOKIE_SECURE'] = False
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 
 # Inicialização de módulos
 mysql.init_app(app)
@@ -281,7 +286,7 @@ def login():
                 mqtt_port=user_data[6]
             )
 
-            login_user(user)
+            login_user(user, remember=True)
 
             # Criar e conectar cliente MQTT
             user_client = create_new_client(user.id, user.broker, user.mqtt_port, user.mqtt_user, user.mqtt_password)

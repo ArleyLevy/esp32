@@ -385,7 +385,7 @@
         <form id="dropdownForm" action="/pin_update" method="POST">
             <label class="label1" for="led">Qual o led?</label>
             <input type="hidden" name="user_id" value="{{ current_user.id }}">
-            <select id="dropdown1" name="led">
+            <select id="dropdown1" name="led" required>
                 <option value="nada" selected>Selecione um led</option>
                 <option value="led0">LED 1</option>
                 <option value="led1">LED 2</option>
@@ -393,20 +393,20 @@
                 <option value="led3">LED 4</option>
             </select>
             <label class="label1" for="dropdown2">Selecione o respectivo pino:</label>
-            <select id="dropdown2" name="pin">
+            <select id="dropdown2" name="pin" required>
                 <option value="nada" selected>Selecione seu pino de saída</option>
-                <option value="2">PIN 2 (para teste)</option>
-                <option value="3">PIN 3 (cuidado)</option>
-                <option value="4">PIN 4</option>
-                <option value="5">PIN 5</option>
-                <option value="6">PIN 6</option>
-                <option value="7">PIN 7</option>
-                <option value="8">PIN 8</option>
-                <option value="9">PIN 9</option>
-                <option value="10">PIN 10</option>
-                <option value="11">PIN 11</option>
-                <option value="12">PIN 12</option>
-                <option value="13">PIN 13</option>
+                <option value="2">PIN 2 </option>
+                <option value="3">PIN 4 (cuidado)</option>
+                <option value="4">PIN 12</option>
+                <option value="5">PIN 13</option>
+                <option value="6">PIN 14</option>
+                <option value="7">PIN 15</option>
+                <option value="8">PIN 16</option>
+                <option value="9">PIN 17</option>
+                <option value="10">PIN 18</option>
+                <option value="11">PIN 19</option>
+                <option value="12">PIN 21</option>
+                <option value="13">PIN 22</option>
                 <option value="14">PIN 14</option>
                 <option value="15">PIN 15</option>
                 <option value="16">PIN 16</option>
