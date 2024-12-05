@@ -3,8 +3,8 @@
 #include <WiFiClientSecure.h>
 
 // Configurações Wi-Fi
-const char* ssid = "O nome da sua rede";
-const char* password = "A senha da sua rede";
+const char* ssid = "MILLENA";
+const char* password = "millena1612";
 
 // Configurações MQTT
 // Configurações do broker MQTT
@@ -17,9 +17,10 @@ const int mqtt_port = PORT MQTT;
 int user_id = SEU ID;  // Substitua por ID correspondente
 String topic_command = "home/" + String(user_id) + "/esp32/leds";
 String topic_status = "home/" + String(user_id) + "/esp32/status";
+String mqtt_topic = "home/" + String(user_id) + "/esp32/pin";
 
 // Pinos dos LEDs
-const int ledPins[] = {2, 4, 16, 17};
+int ledPins[] = {2, 4, 16, 17};
 int ledStates[] = {0, 0, 0, 0};  // Estados iniciais dos LEDs
 
 // Pinos dos botões
@@ -44,7 +45,7 @@ void setup() {
   // Configuração do cliente MQTT
   espClient.setInsecure(); // TLS sem validação de certificado
   client.setServer(mqtt_server, mqtt_port);
-  client.setCallback(callback);
+  client.setCallback(mqttCallback);
 
   // Configuração dos LEDs
   for (int i = 0; i < 4; i++) {
@@ -109,9 +110,10 @@ void setupWiFi() {
 void reconnect() {
   while (!client.connected()) {
     Serial.print("Tentando conectar ao MQTT...");
-    if (client.connect("ESP32Client", mqtt_user, mqtt_password)) {
+    if (client.connect("ESP32Client", mqtt_username, mqtt_password)) {
       Serial.println("Conectado!");
-      client.subscribe(topic_command.c_str()); // Inscrição no tópico de comandos
+      client.subscribe(topic_command.c_str());
+      client.subscribe(mqtt_topic.c_str()); // Inscrição no tópico de comandos
     } else {
       Serial.print("Falha, rc=");
       Serial.print(client.state());
@@ -120,6 +122,30 @@ void reconnect() {
     }
   }
 }
+
+void mqttCallback(char* topic, byte* payload, unsigned int length) {
+  Serial.print("Mensagem recebida no tópico: ");
+  Serial.println(topic);
+
+  // Convertendo o payload para string
+  String message = "";
+  for (unsigned int i = 0; i < length; i++) {
+    message += (char)payload[i];
+  }
+  
+  Serial.print("Mensagem: ");
+  Serial.println(message);
+
+  // Verifica qual tópico recebeu a mensagem
+  if (String(topic) == topic_command) {
+    callback(topic, payload, length); // Chama a função de callback dos comandos
+  } else if (String(topic) == mqtt_topic) {
+    callbackpin(topic, payload, length); // Chama a função de callback dos pinos
+  } else {
+    Serial.println("Tópico desconhecido.");
+  }
+}
+
 
 // Callback para mensagens MQTT
 void callback(char* topic, byte* payload, unsigned int length) {
@@ -164,4 +190,61 @@ void publishLEDState(int index) {
   client.publish(topic_status.c_str(), message.c_str());
   Serial.print("Estado publicado: ");
   Serial.println(message);
+}
+
+// Função chamada ao receber mensagens MQTT
+void callbackpin(char* topic, byte* payload, unsigned int length) {
+  Serial.print("Mensagem recebida no tópico: ");
+  Serial.println(topic);
+
+  // Convertendo o payload para string
+  String message = "";
+  for (unsigned int i = 0; i < length; i++) {
+    message += (char)payload[i];
+  }
+  
+  Serial.print("Mensagem: ");
+  Serial.println(message);
+
+  // Verifica se é o tópico correto
+  if (String(topic) == mqtt_topic) {
+    // Procura pelo separador ":"
+    int separatorIndex = message.indexOf(':');
+    if (separatorIndex != -1) {
+      // Divide a mensagem em dois: identificador (ledX) e número do pino
+      String identifier = message.substring(0, separatorIndex); // Antes do ":"
+      String pinString = message.substring(separatorIndex + 1); // Depois do ":"
+      int pinNumber = pinString.toInt(); // Converte para inteiro
+
+      // Verifica se o identificador começa com "led" e extrai o índice
+      if (identifier.startsWith("led")) {
+        String indexString = identifier.substring(3); // Pega o número após "led"
+        int ledIndex = indexString.toInt(); // Converte o índice para inteiro
+
+        if (ledIndex >= 0 && ledIndex < 10) { // Verifica se o índice está no intervalo da matriz
+          if (pinNumber >= 0 && pinNumber <= 39) { // Valida o número do pino
+            int previousPin = ledPins[ledIndex];
+            if (previousPin != -1 && previousPin != pinNumber) {
+              digitalWrite(previousPin, LOW); // Desliga o pino anterior, se necessário
+            }
+
+            ledPins[ledIndex] = pinNumber; // Atribui o número do pino à matriz
+            pinMode(pinNumber, OUTPUT); // Configura o pino como saída
+            Serial.print("Configurado ledPins[");
+            Serial.print(ledIndex + 1);
+            Serial.print("] com o pino ");
+            Serial.println(pinNumber);
+          } else {
+            Serial.println("Número do pino inválido!");
+          }
+        } else {
+          Serial.println("Índice de LED fora do intervalo!");
+        }
+      } else {
+        Serial.println("Identificador inválido! Deve começar com 'led'.");
+      }
+    } else {
+      Serial.println("Formato de mensagem inválido! Use ledX:pin");
+    }
+  }
 }

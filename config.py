@@ -165,7 +165,7 @@ def config_email():
             if cur.fetchone():
                 cur.execute("""
                     UPDATE users 
-                    SET email = %s, reset_code = NULL
+                    SET email = %s, reset_code = NULL, verification_code = NULL
                     WHERE LOWER(email) = LOWER(%s)
                 """, (email_, email))
                 mysql.connection.commit()

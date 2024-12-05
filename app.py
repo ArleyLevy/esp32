@@ -19,9 +19,9 @@ app = Flask(__name__)
 # Enhanced Configuration
 class Config:
     MYSQL_HOST = 'sql10.freesqldatabase.com'
-    MYSQL_USER = 'sql10748019'
-    MYSQL_PASSWORD = 'BRv8fEBAxy'
-    MYSQL_DB = 'sql10748019'
+    MYSQL_USER = 'sql10749793'
+    MYSQL_PASSWORD = 'TnJvUMg8Uj'
+    MYSQL_DB = 'sql10749793'
     SECRET_KEY = os.urandom(24)
     SESSION_PERMANENT = True
     EMAIL_VALIDATION_API_KEY = '9e22da46e85c4bab9684168eb8acd81e'
@@ -38,6 +38,7 @@ login_manager.login_view = 'login'
 
 # Estado global dos LEDs por usuário
 led_states = {}
+pin_states = {}
 
 # Classe para representar o usuário
 class User(UserMixin):
@@ -98,7 +99,7 @@ limiter = Limiter(
     default_limits=["100 per day", "30 per hour"]
 )
 
-app.register_blueprint(config_dashboard)
+app.register_blueprint(config_dashboard )
 
 @app.route('/tutorial')
 def tutorial():
@@ -410,6 +411,52 @@ def dashboard():
         broker1=current_user.broker,
         user_id=current_user.id,
     )
+    
+@app.route('/pin_update', methods=['POST'])
+@login_required
+def update_pin():
+    try:
+        ledx = request.form.get('led')  # Obtendo o led selecionado
+        pin = request.form.get('pin')  # Obtendo o pino selecionado
+        
+        # Verificando se o valor de LED e PIN são válidos
+        if ledx == "nada" or pin == "nada":
+            flash('Selecione um led e um pino válido!', 'warning')
+            return redirect(url_for('config.config_dash'))
+
+        # Aqui, o PIN é convertido em inteiro, se necessário
+        pin = int(pin)
+
+        # Verificando o usuário
+        if int(current_user.id) != int(request.form.get('user_id')):
+            return "Ação não autorizada.", 403
+
+        # Publica o comando no broker MQTT
+        topic = f"home/{current_user.id}/esp32/pin"
+        message = f"{ledx}:{pin}"
+        user_client = mqtt_clients.get(current_user.id)
+        if user_client:
+            if user_client.is_connected():
+                user_client.publish(topic, message)
+                print(f"Publicado no tópico {topic}: {message}")
+                flash(f'A led {int(ledx[3:]) + 1} está configurada para o pino {pin}!', 'success')
+                # Atualiza o estado global
+                if current_user.id not in pin_states:
+                    pin_states[current_user.id] = {}
+                pin_states[current_user.id][ledx] = pin
+                return redirect(url_for('config.config_dash'))
+            else:
+                print(f"Erro: Cliente MQTT não conectado para o usuário {current_user.id}.")
+                return "Cliente MQTT não conectado.", 500
+        else:
+            print(f"Erro: Cliente MQTT não configurado para o usuário {current_user.id}.")
+            return "Cliente MQTT não configurado.", 500
+
+
+    except Exception as e:
+        print(f"Erro no /pin_update: {e}")
+        return str(e), 500
+ 
 
 @app.route('/update_led', methods=['POST'])
 @login_required

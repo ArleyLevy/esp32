@@ -269,6 +269,30 @@
         .flash-warning {
             background: rgb(216, 216, 5) !important;
         }
+        select {
+            width: 100%; /* Ajustar ao tamanho do contêiner */
+            padding: 10px; /* Espaçamento interno */
+            font-size: 16px; /* Tamanho da fonte */
+            border: none; /* Remover bordas padrão */
+            border-radius: 8px; /* Bordas arredondadas */
+            background-color: #444; /* Cor de fundo */
+            color: #fff; /* Cor do texto */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Adicionar sombra */
+            outline: none; /* Remover borda azul ao focar */
+            appearance: none; /* Remover seta padrão (estilo padrão do navegador) */
+            cursor: pointer; /* Cursor como ponteiro para interatividade */
+            transition: background-color 0.3s ease, transform 0.2s ease; /* Transições suaves */
+        }
+
+        select:hover {
+            background-color: #444; /* Alterar fundo ao passar o mouse */
+            color: #53e200; /* Alterar a cor do texto ao passar o mouse */
+            transform: scale(1.02); /* Leve aumento ao passar o mouse */
+        }
+
+        select:focus {
+            box-shadow: 0 0 6px #ffd700; /* Realçar com brilho ao focar */
+        }
 
     </style>
 </head>
@@ -355,6 +379,52 @@
                 </div>
                 <button type="submit" class="content-button">Enviar</button>
             </form>
+        </div>
+        <div class="config-section">
+        <h2>Troca de pinos dos leds</h2>
+        <form id="dropdownForm" action="/pin_update" method="POST">
+            <label class="label1" for="led">Qual o led?</label>
+            <input type="hidden" name="user_id" value="{{ current_user.id }}">
+            <select id="dropdown1" name="led">
+                <option value="nada" selected>Selecione um led</option>
+                <option value="led0">LED 1</option>
+                <option value="led1">LED 2</option>
+                <option value="led2">LED 3</option>
+                <option value="led3">LED 4</option>
+            </select>
+            <label class="label1" for="dropdown2">Selecione o respectivo pino:</label>
+            <select id="dropdown2" name="pin">
+                <option value="nada" selected>Selecione seu pino de saída</option>
+                <option value="2">PIN 2 (para teste)</option>
+                <option value="3">PIN 3 (cuidado)</option>
+                <option value="4">PIN 4</option>
+                <option value="5">PIN 5</option>
+                <option value="6">PIN 6</option>
+                <option value="7">PIN 7</option>
+                <option value="8">PIN 8</option>
+                <option value="9">PIN 9</option>
+                <option value="10">PIN 10</option>
+                <option value="11">PIN 11</option>
+                <option value="12">PIN 12</option>
+                <option value="13">PIN 13</option>
+                <option value="14">PIN 14</option>
+                <option value="15">PIN 15</option>
+                <option value="16">PIN 16</option>
+                <option value="17">PIN 17</option>
+                <option value="18">PIN 18</option>
+                <option value="19">PIN 19</option>
+                <option value="20">PIN 20</option>
+                <option value="21">PIN 21</option>
+                <option value="22">PIN 22</option>
+                <option value="23">PIN 23</option>
+                <option value="24">PIN 24</option>
+                <option value="25">PIN 25</option>
+                <option value="26">PIN 26</option>
+                <option value="27">PIN 27</option>
+                <option value="28">PIN 28</option>                
+            </select> 
+            <button class="content-button" type="submit">Enviar</button>
+        </form>
         </div>
     </div>
 
