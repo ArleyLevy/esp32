@@ -32,7 +32,7 @@ app.config.from_object(Config)
 #repassar valores globais para o config.py
 app.config['EMAIL_API'] = Config.EMAIL_VALIDATION_API_KEY
 app.config['REMEMBER_COOKIE_DURATION'] = timedelta(days=30)
-app.config['SESSION_COOKIE_SECURE'] = False
+app.config['SESSION_COOKIE_SECURE'] = True
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 
